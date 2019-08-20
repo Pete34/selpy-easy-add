@@ -20,16 +20,17 @@
 </head>
 
 <body>
-    <header>
-        <div class="headline">
+    <header class="header">
+        <div class="header__headline">
             Selpy - Link Easy Add
         </div>
-        <div id="instructions">
-            <div class="sub">1. Enter your credentials.</div>
-            <div class="sub">
+        <div class="header__instructions"
+             id="instructions">
+            <div class="header__sub">1. Enter your credentials.</div>
+            <div class="header__sub">
                 2. Then easily add and archive links by right clicking anywhere on a page!
             </div>
-            <div class="sub">
+            <div class="header__sub">
                 3. When ready log into Selpy, then add any personal comments and share.
             </div>
         </div>
@@ -65,18 +66,30 @@
          class="loggedIn">
         <div id="loggedInMessage"
              class="loggedIn__message"></div>
-        <div class="current-url">
-            <div class="urlLabel">Current URL</div>
-            <div id="currentUrl"></div>
+        <div class="currentUrl">
+            <div class="currentUrl__label">Current URL-</div>
+            <div class="currentUrl__value"
+                 id="currentUrl"></div>
         </div>
         <div class="button-wrapper">
             <button id="addUrl"
-                    class="loggedIn__button btn btn-primary">Add Current Url</button>
+                    class="loggedIn__button btn btn-primary">Add Current URL</button>
             <button id="logout"
                     class="loggedIn__button btn btn-secondary">Unlink Account</button>
         </div>
-         <div id="linkResults" class="loggedIn__link-results text-primary"></div>
-         <div id="linkError" class="loggedIn__link-error"></div>
+
+        <div class="results text-primary">
+            <figure class="results__mochi-figure"
+                    id="mochiFigure">
+                <img class="results__mochi-svg"
+                     src="blue_mochi.svg"
+                     alt="">
+            </figure>
+            <span class="results__text"
+                  id="linkResults"></span>
+        </div>
+        <div id="linkError"
+             class="loggedIn__link-error"></div>
     </div>
 
 </body>

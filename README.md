@@ -1,4 +1,5 @@
-# Chrome extension to add links to Selpy via clicks 
- ### Clicks easier then cut and paste for user.
+# Chrome extension to add links to Selpy via clicks
 
- ### Initial commit version 0.1 
+### Once installed user logs in and can send links to account with mouse click by opening add-on and clicking a button.
+
+### This is easier then cutting and pasting for the user.

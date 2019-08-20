@@ -74,6 +74,7 @@ window.addEventListener('DOMContentLoaded', function () {
     }
     var currentUrlDiv = document.getElementById('currentUrl');
     var addUrlButton = document.getElementById('addUrl');
+    var lastLinkAdded = '';
     function attachListener(tabs) {
         currentUrlDiv.innerHTML = tabsToActiveUrl(tabs);
         addUrlButton.addEventListener('click', function (e) {
@@ -81,6 +82,7 @@ window.addEventListener('DOMContentLoaded', function () {
             var urlCheck = checkUrl(tabs);
             if (urlCheck) {
                 var urlToSend = tabsToActiveUrl(tabs);
+                lastLinkAdded = urlToSend;
                 AddLink(urlToSend);
             }
         });
@@ -96,6 +98,10 @@ window.addEventListener('DOMContentLoaded', function () {
     function checkUrl(tabs) {
         var tab = tabs[0];
         if (!tab.url) {
+            return false;
+        }
+        if (tab.url === lastLinkAdded) {
+            setLinkError('That link was added this session');
             return false;
         }
         if (tab.url) {
@@ -117,13 +123,14 @@ window.addEventListener('DOMContentLoaded', function () {
      * 5. FETCH DOES NOT HANDLE ERROR AS EXPECTED - only lack of connectivity triggers rejected!
      */
     function Login(loginObject) {
+        setServerError('Logging in...');
         var api = 'http://localhost:5000/api/auth/token';
         fetch(api, {
             method: 'POST',
             body: JSON.stringify(loginObject),
             headers: new Headers({
-                'Content-Type': 'application/json',
-            }),
+                'Content-Type': 'application/json'
+            })
         })
             .then(function (response) {
             if (!response.ok) {
@@ -152,47 +159,108 @@ window.addEventListener('DOMContentLoaded', function () {
         });
     }
     //set some variables from dom for dom manipulator functions.
-    var formEl = document.getElementById('loginForm');
-    var instructionsEl = document.getElementById('instructions');
-    /**
-     * Changes DOM when we successfully get token back.
-     */
-    function handleLoginViewChanges() {
-        formEl.reset();
-        formEl.style.display = 'none';
-        instructionsEl.style.display = 'none';
-        document.getElementById('loggedIn').style.display = 'block';
-        document.getElementById('loggedInMessage').innerHTML =
-            'Credentials Accepted! Add any pages you like to your Selpy Account!';
-        document.getElementById('linkResults').innerHTML = '';
-        document.getElementById('linkError').innerHTML = '';
-    }
-    /**
-     * Changes Dom and removes token if user logs out of extension.
-     */
-    function removeToken() {
-        removeTokenfromLocal();
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('loggedIn').style.display = 'none';
-        document.getElementById('instructions').style.display = 'block';
-    }
-    /**
-     * Changes Dom if token is in memory when user click on popup icon.
-     */
-    function handleTokenExists() {
-        document.getElementById('instructions').style.display = 'none';
-        document.getElementById('loggedIn').style.display = 'block';
-        document.getElementById('loggedInMessage').innerHTML =
-            'Linked to account.';
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('linkResults').innerHTML = '';
-        document.getElementById('linkError').innerHTML = '';
-    }
     function hideUrlButtons() {
         document.getElementById('loggedIn').style.display = 'none';
     }
     function setServerError(message) {
         var error = (document.getElementById('errorFromServer').innerHTML = message);
+    }
+    function formDisplay(show) {
+        var formEl = document.getElementById('loginForm');
+        if (!show) {
+            formEl.reset();
+            formEl.style.display = 'none';
+        }
+        else {
+            formEl.style.display = 'block';
+        }
+    }
+    function instructionsDisplay(show) {
+        var instructionsEl = document.getElementById('instructions');
+        show
+            ? (instructionsEl.style.display = 'block')
+            : (instructionsEl.style.display = 'none');
+    }
+    function displayAddLinkInfo(show, message) {
+        var loggedInEl = document.getElementById('loggedIn');
+        var loggedInMessEl = document.getElementById('loggedInMessage');
+        if (show) {
+            loggedInEl.style.display = 'block';
+            loggedInMessEl.innerHTML = message || '';
+        }
+        else {
+            loggedInEl.style.display = 'none';
+        }
+    }
+    /**
+     * This method will both set link result and display the mochi icon.
+     */
+    function setLinkResult(message) {
+        var results = document.getElementById('linkResults');
+        results.innerHTML = message;
+        if (message) {
+            displayMochiFigure(true);
+        }
+        setTimeout(function () {
+            results.innerHTML = '';
+            displayMochiFigure(false);
+        }, 3000);
+    }
+    function setLinkError(message) {
+        var linkError = document.getElementById('linkError');
+        linkError.innerHTML = message;
+        setTimeout(function () {
+            linkError.innerHTML = '';
+        }, 6000);
+    }
+    function displayMochiFigure(show) {
+        var mochiFigure = document.getElementById('mochiFigure');
+        if (show) {
+            mochiFigure.style.display = 'inline-block';
+        }
+        else {
+            mochiFigure.style.display = 'none';
+        }
+    }
+    /**
+     * Changes DOM when we successfully get token back.
+     */
+    function handleLoginViewChanges() {
+        // reset and hide form.
+        formDisplay(false);
+        // hide instructions
+        instructionsDisplay(false);
+        // clear errors
+        setServerError('');
+        // log in message show
+        displayAddLinkInfo(true, 'Linked to Selpy Account');
+        // clear any results from link added display.
+        displayMochiFigure(false);
+        setLinkResult('');
+        setLinkError('');
+    }
+    /**
+     * Changes Dom and removes token if user logs out of extension.
+     */
+    function removeToken() {
+        // removes token from local storage
+        removeTokenfromLocal();
+        // shows instructions and log in form element
+        formDisplay(true);
+        instructionsDisplay(true);
+        displayAddLinkInfo(false);
+    }
+    /**
+     * Changes Dom if token is in memory when user click on popup icon.
+     */
+    function handleTokenExists() {
+        displayAddLinkInfo(true, 'Linked To Selpy Account.');
+        instructionsDisplay(false);
+        formDisplay(false);
+        displayMochiFigure(false);
+        setLinkResult('');
+        setLinkError('');
+        setServerError('');
     }
     /**
      * Returns strings based on any errors in email control.
@@ -252,8 +320,8 @@ window.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify(data),
             headers: new Headers({
                 'Content-Type': 'application/json',
-                Authorization: token,
-            }),
+                Authorization: token
+            })
         })
             .then(function (response) {
             if (!response.ok) {
@@ -263,18 +331,13 @@ window.addEventListener('DOMContentLoaded', function () {
             return response;
         })
             .then(function (response) { return response.json(); })
-            .then(function () { return setLinkResult('Link added successfully'); })
+            .then(function () {
+            setLinkResult('Link added successfully');
+            displayMochiFigure(true);
+        })
             .catch(function (error) {
             console.log(error);
             setLinkError('An error has occured - contact Pete');
         });
-    }
-    function setLinkResult(message) {
-        document.getElementById('linkResults').innerHTML = message;
-        document.getElementById('linkError').innerHTML = '';
-    }
-    function setLinkError(message) {
-        document.getElementById('linkResults').innerHTML = '';
-        document.getElementById('linkError').innerHTML = message;
     }
 });

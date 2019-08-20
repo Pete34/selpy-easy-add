@@ -1,6 +1,7 @@
 // all the work is done after Dom is loaded.
 window.addEventListener('DOMContentLoaded', () => {
   // get elements on form to work with..
+
   let logoutButton = document.getElementById('logout');
   let logInForm = document.getElementById('loginForm');
   let errorPasswordDiv = document.getElementById('errorPassword');
@@ -18,7 +19,7 @@ window.addEventListener('DOMContentLoaded', () => {
   function checkStorage() {
     const token = localStorage.getItem('access_token');
 
-    logoutButton!.addEventListener('click', (e) => {
+    logoutButton!.addEventListener('click', e => {
       removeToken();
     });
     if (token) {
@@ -35,7 +36,7 @@ window.addEventListener('DOMContentLoaded', () => {
    */
   function handleForm() {
     // event listener watches for submissions.
-    logInForm!.addEventListener('submit', (e) => {
+    logInForm!.addEventListener('submit', e => {
       // prevent form from trying to submit data itself
       e.preventDefault();
 
@@ -65,7 +66,7 @@ window.addEventListener('DOMContentLoaded', () => {
       errorEmailElement: HTMLElement | null,
       emailError: string,
       errorPasswordElement: HTMLElement | null,
-      passwordError: string,
+      passwordError: string
     ) {
       errorEmailElement!.innerHTML = emailError;
       errorPasswordElement!.innerHTML = passwordError;
@@ -91,14 +92,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let currentUrlDiv = document.getElementById('currentUrl');
   let addUrlButton = document.getElementById('addUrl');
+  let lastLinkAdded: string = '';
 
   function attachListener(tabs: chrome.tabs.Tab[]) {
     currentUrlDiv!.innerHTML = tabsToActiveUrl(tabs);
-    addUrlButton!.addEventListener('click', (e) => {
+    addUrlButton!.addEventListener('click', e => {
       console.log(tabs);
       let urlCheck = checkUrl(tabs);
       if (urlCheck) {
         const urlToSend = tabsToActiveUrl(tabs);
+        lastLinkAdded = urlToSend;
         AddLink(urlToSend);
       }
     });
@@ -116,6 +119,10 @@ window.addEventListener('DOMContentLoaded', () => {
   function checkUrl(tabs: chrome.tabs.Tab[]): boolean {
     const tab = tabs[0];
     if (!tab.url) {
+      return false;
+    }
+    if (tab.url === lastLinkAdded) {
+      setLinkError('That link was added this session');
       return false;
     }
     if (tab.url) {
@@ -142,29 +149,30 @@ window.addEventListener('DOMContentLoaded', () => {
    * 5. FETCH DOES NOT HANDLE ERROR AS EXPECTED - only lack of connectivity triggers rejected!
    */
   function Login(loginObject: LoginObject) {
+    setServerError('Logging in...');
     const api = 'http://localhost:5000/api/auth/token';
     fetch(api, {
       method: 'POST',
       body: JSON.stringify(loginObject),
       headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
+        'Content-Type': 'application/json'
+      })
     })
-      .then((response) => {
+      .then(response => {
         if (!response.ok) {
           console.log(response);
           throw Error(response.statusText);
         }
         return response;
       })
-      .then((response) => response.json())
-      .then((json) => json['access_token'])
-      .then((token) => {
+      .then(response => response.json())
+      .then(json => json['access_token'])
+      .then(token => {
         console.log(token);
         setTokenInLocal(token);
         handleLoginViewChanges();
       })
-      .catch((error) => {
+      .catch(error => {
         let message: string = error.message;
         console.log(message);
         const badRequest: string = 'Bad Request';
@@ -178,55 +186,117 @@ window.addEventListener('DOMContentLoaded', () => {
 
   //set some variables from dom for dom manipulator functions.
 
-  let formEl = <HTMLFormElement>document.getElementById('loginForm');
-  let instructionsEl = document.getElementById('instructions');
-
-  /**
-   * Changes DOM when we successfully get token back.
-   */
-  function handleLoginViewChanges() {
-    formEl.reset();
-    formEl!.style.display = 'none';
-    instructionsEl!.style.display = 'none';
-   
-    document.getElementById('loggedIn')!.style.display = 'block';
-    document.getElementById('loggedInMessage')!.innerHTML =
-      'Credentials Accepted! Add any pages you like to your Selpy Account!';
-    document.getElementById('linkResults')!.innerHTML = '';
-    document.getElementById('linkError')!.innerHTML = '';
-  }
-
-  /**
-   * Changes Dom and removes token if user logs out of extension.
-   */
-  function removeToken() {
-    removeTokenfromLocal();
-    document.getElementById('loginForm')!.style.display = 'block';
-    document.getElementById('loggedIn')!.style.display = 'none';
-    document.getElementById('instructions')!.style.display = 'block';
-  }
-
-  /**
-   * Changes Dom if token is in memory when user click on popup icon.
-   */
-  function handleTokenExists() {
-    document.getElementById('instructions')!.style.display = 'none';
-    document.getElementById('loggedIn')!.style.display = 'block';
-    document.getElementById('loggedInMessage')!.innerHTML =
-      'Linked to account.';
-    document.getElementById('loginForm')!.style.display = 'none';
-    document.getElementById('linkResults')!.innerHTML = '';
-    document.getElementById('linkError')!.innerHTML = '';
-  }
-
   function hideUrlButtons() {
     document.getElementById('loggedIn')!.style.display = 'none';
   }
 
   function setServerError(message: string) {
     let error = (document.getElementById(
-      'errorFromServer',
+      'errorFromServer'
     )!.innerHTML = message);
+  }
+
+  function formDisplay(show: boolean) {
+    let formEl = <HTMLFormElement>document.getElementById('loginForm');
+    if (!show) {
+      formEl.reset();
+      formEl.style.display = 'none';
+    } else {
+      formEl.style.display = 'block';
+    }
+  }
+  function instructionsDisplay(show: boolean) {
+    let instructionsEl = document.getElementById('instructions');
+
+    show
+      ? (instructionsEl!.style.display = 'block')
+      : (instructionsEl!.style.display = 'none');
+  }
+
+  function displayAddLinkInfo(show: boolean, message?: string) {
+    let loggedInEl = document.getElementById('loggedIn');
+    let loggedInMessEl = document.getElementById('loggedInMessage');
+
+    if (show) {
+      loggedInEl!.style.display = 'block';
+      loggedInMessEl!.innerHTML = message || '';
+    } else {
+      loggedInEl!.style.display = 'none';
+    }
+  }
+
+  /**
+   * This method will both set link result and display the mochi icon.
+   */
+  function setLinkResult(message: string) {
+    let results = document.getElementById('linkResults');
+    results!.innerHTML = message;
+    if (message) {
+      displayMochiFigure(true);
+    }
+    setTimeout(() => {
+      results!.innerHTML = '';
+      displayMochiFigure(false);
+    }, 3000);
+  }
+  function setLinkError(message: string) {
+    let linkError = document.getElementById('linkError');
+    linkError!.innerHTML = message;
+    setTimeout(() => {
+      linkError!.innerHTML = '';
+    }, 6000);
+  }
+
+  function displayMochiFigure(show: boolean) {
+    let mochiFigure = document.getElementById('mochiFigure');
+    if (show) {
+      mochiFigure!.style.display = 'inline-block';
+    } else {
+      mochiFigure!.style.display = 'none';
+    }
+  }
+
+  /**
+   * Changes DOM when we successfully get token back.
+   */
+  function handleLoginViewChanges() {
+    // reset and hide form.
+    formDisplay(false);
+    // hide instructions
+    instructionsDisplay(false);
+    // clear errors
+    setServerError('');
+    // log in message show
+    displayAddLinkInfo(true, 'Linked to Selpy Account');
+    // clear any results from link added display.
+    displayMochiFigure(false);
+    setLinkResult('');
+    setLinkError('');
+  }
+
+  /**
+   * Changes Dom and removes token if user logs out of extension.
+   */
+  function removeToken() {
+    // removes token from local storage
+    removeTokenfromLocal();
+    // shows instructions and log in form element
+    formDisplay(true);
+    instructionsDisplay(true);
+    displayAddLinkInfo(false);
+  }
+
+  /**
+   * Changes Dom if token is in memory when user click on popup icon.
+   */
+  function handleTokenExists() {
+    displayAddLinkInfo(true, 'Linked To Selpy Account.');
+    instructionsDisplay(false);
+    formDisplay(false);
+    displayMochiFigure(false);
+    setLinkResult('');
+    setLinkError('');
+    setServerError('');
   }
 
   /**
@@ -294,30 +364,24 @@ window.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify(data),
       headers: new Headers({
         'Content-Type': 'application/json',
-        Authorization: token,
-      }),
+        Authorization: token
+      })
     })
-      .then((response) => {
+      .then(response => {
         if (!response.ok) {
           console.log(response);
           throw Error(response.statusText);
         }
         return response;
       })
-      .then((response) => response.json())
-      .then(() => setLinkResult('Link added successfully'))
-      .catch((error) => {
+      .then(response => response.json())
+      .then(() => {
+        setLinkResult('Link added successfully');
+        displayMochiFigure(true);
+      })
+      .catch(error => {
         console.log(error);
         setLinkError('An error has occured - contact Pete');
       });
-  }
-
-  function setLinkResult(message: string) {
-    document.getElementById('linkResults')!.innerHTML = message;
-    document.getElementById('linkError')!.innerHTML = '';
-  }
-  function setLinkError(message: string) {
-    document.getElementById('linkResults')!.innerHTML = '';
-    document.getElementById('linkError')!.innerHTML = message;
   }
 });
