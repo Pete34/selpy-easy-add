@@ -153,13 +153,14 @@ window.addEventListener('DOMContentLoaded', function () {
     }
     //set some variables from dom for dom manipulator functions.
     var formEl = document.getElementById('loginForm');
+    var instructionsEl = document.getElementById('instructions');
     /**
      * Changes DOM when we successfully get token back.
      */
     function handleLoginViewChanges() {
         formEl.reset();
-        document.getElementById('instructions').style.display = 'none';
-        document.getElementById('loginForm').style.display = 'none';
+        formEl.style.display = 'none';
+        instructionsEl.style.display = 'none';
         document.getElementById('loggedIn').style.display = 'block';
         document.getElementById('loggedInMessage').innerHTML =
             'Credentials Accepted! Add any pages you like to your Selpy Account!';
