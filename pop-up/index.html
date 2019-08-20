@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible"
+          content="ie=edge">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500i,700&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="styles.css">
+    <script src="../js/login.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <header>
+        <div class="headline">
+            Selpy - Link Easy Add
+        </div>
+        <div id="instructions">
+            <div class="sub">1. Enter your credentials.</div>
+            <div class="sub">
+                2. Then easily add and archive links by right clicking anywhere on a page!
+            </div>
+            <div class="sub">
+                3. When ready log into Selpy, then add any personal comments and share.
+            </div>
+        </div>
+    </header>
+
+    <form id="loginForm"
+          class="form form-group">
+        <label class="form__label"
+               for="mochiEmail">Email address</label>
+        <input type="email"
+               autocomplete="email"
+               class="form__control form-control"
+               id="mochiEmailControl"
+               aria-describedby="emailHelp"
+               placeholder="Enter email">
+        <div id="errorEmail"
+             class="form__error"></div>
+        <label class="form__label"
+               for="mochiPassword">Password</label>
+        <input type="text"
+               autocomplete="password"
+               class="form__control form-control"
+               id="mochiPasswordControl"
+               placeholder="Password">
+        <div id="errorPassword"
+             class="form__error "></div>
+        <button type="submit"
+                class="form__submit btn btn-primary">Submit</button>
+        <div id="errorFromServer"
+             class="form__error"></div>
+    </form>
+    <div id="loggedIn"
+         class="loggedIn">
+        <div id="loggedInMessage"
+             class="loggedIn__message"></div>
+        <div class="current-url">
+            <div class="urlLabel">Current URL</div>
+            <div id="currentUrl"></div>
+        </div>
+        <div class="button-wrapper">
+            <button id="addUrl"
+                    class="loggedIn__button btn btn-primary">Add Current Url</button>
+            <button id="logout"
+                    class="loggedIn__button btn btn-secondary">Unlink Account</button>
+        </div>
+         <div id="linkResults" class="loggedIn__link-results text-primary"></div>
+         <div id="linkError" class="loggedIn__link-error"></div>
+    </div>
+
+</body>
+
+</html>

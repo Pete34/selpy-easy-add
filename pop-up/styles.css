@@ -1,0 +1,89 @@
+html {
+  margin: auto;
+}
+
+body {
+  min-width: 20rem;
+
+  font-family: 'Raleway', sans-serif;
+  background: #f1f1f1;
+  background-image: linear-gradient(to bottom right, white, #f1f1f1, #eee, #ddd);
+}
+
+header {
+  padding: 0.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  background: white;
+  color: black; 
+}
+
+#instructions{
+  font-weight: normal;
+  padding: 0.5em;
+}
+
+
+.headline {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.sub {
+  font-size: 1rem;
+  color: #555;
+}
+
+.form {
+  padding: 1rem;
+}
+.form__label {
+  display: block;
+}
+.form__control {
+  margin-bottom: 0.5rem;
+}
+
+.form__submit {
+  display: block;
+  margin-top: 1rem;
+}
+
+.form__error {
+  color:firebrick;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.loggedIn {
+  margin-top: 1rem;
+}
+.loggedIn__message {
+  padding-left: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.current-url{
+  background: white;
+  margin-bottom: 0.25rem;
+  padding: 0.5em;
+}
+#currentUrl{
+  padding-top: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.button-wrapper{
+  padding: 0.5rem;
+  text-align: center;
+}
+
+#linkError, #linkResults{
+  padding-bottom: 0.25em;   
+  padding-left: 0.25em;
+  font-weight: bold;
+}
+
+#linkError{
+  color: firebrick;
+}
