@@ -5,7 +5,7 @@ window.addEventListener('DOMContentLoaded', function () {
     var logoutButton = document.getElementById('logout');
     var logInForm = document.getElementById('loginForm');
     var errorPasswordDiv = document.getElementById('errorPassword');
-    var errorEmailDiv = document.getElementById('errorEmail');
+    var errorNameDiv = document.getElementById('errorName');
     checkStorage();
     handleForm();
     urlButtonHandler();
@@ -37,24 +37,24 @@ window.addEventListener('DOMContentLoaded', function () {
             // prevent form from trying to submit data itself
             e.preventDefault();
             // get elements of form that we need to work with.
-            var email = getEmailControl();
+            var name = getnameControl();
             var password = getPasswordControl();
             // check to see if form inputs are valid and get error strings if they are not.
-            var emailError = checkEmailControl(email);
+            var nameError = checknameControl(name);
             var passwordError = checkPasswordControl(password);
             // check to see if both form inputs are valid
-            var validForm = !emailError && !passwordError;
+            var validForm = !nameError && !passwordError;
             // set elements of form to errors if they exist.
-            setErrors(errorEmailDiv, emailError, errorPasswordDiv, passwordError);
+            setErrors(errorNameDiv, nameError, errorPasswordDiv, passwordError);
             // if the form is valid we try to get token from server.
             if (validForm) {
                 console.log('submitting form');
-                Login({ email: email, password: password });
+                Login({ name: name, password: password });
             }
         });
         // set any errors in the form after submission
-        function setErrors(errorEmailElement, emailError, errorPasswordElement, passwordError) {
-            errorEmailElement.innerHTML = emailError;
+        function setErrors(errornameElement, nameError, errorPasswordElement, passwordError) {
+            errornameElement.innerHTML = nameError;
             errorPasswordElement.innerHTML = passwordError;
         }
         // gets password control value
@@ -62,9 +62,9 @@ window.addEventListener('DOMContentLoaded', function () {
             return document.getElementById('mochiPasswordControl')
                 .value;
         }
-        //gets email control value
-        function getEmailControl() {
-            return document.getElementById('mochiEmailControl')
+        //gets name control value
+        function getnameControl() {
+            return document.getElementById('mochinameControl')
                 .value;
         }
     }
@@ -116,7 +116,7 @@ window.addEventListener('DOMContentLoaded', function () {
         return false;
     }
     /**
-     * 1. We pass loginObject to function {email:"someguy@email.com", password: "somePassword"}
+     * 1. We pass loginObject to function {name:"someguy@name.com", password: "somePassword"}
      * 2. If it fails we send message to user.
      * 3. If it succeeds we add token to local storage and then call function to change DOM.
      * 4. NOTE - https://www.tjvantoll.com/2015/09/13/fetch-and-errors/
@@ -151,7 +151,7 @@ window.addEventListener('DOMContentLoaded', function () {
             console.log(message);
             var badRequest = 'Bad Request';
             if (message === badRequest) {
-                setServerError('Wrong password/email combo');
+                setServerError('Wrong password/name combo');
             }
             else {
                 setServerError('Unknown error - server may be down');
@@ -263,15 +263,11 @@ window.addEventListener('DOMContentLoaded', function () {
         setServerError('');
     }
     /**
-     * Returns strings based on any errors in email control.
+     * Returns strings based on any errors in name control.
      */
-    function checkEmailControl(email) {
-        var validBool = validateEmail(email);
-        if (!email) {
-            return 'An Email is required.';
-        }
-        if (!validBool) {
-            return 'A Valid Email Address is required.';
+    function checknameControl(name) {
+        if (!name) {
+            return 'An name is required.';
         }
         return '';
     }
@@ -286,13 +282,6 @@ window.addEventListener('DOMContentLoaded', function () {
             return 'Must be at least 6 characters long';
         }
         return '';
-    }
-    /**
-     * Valdiates email
-     */
-    function validateEmail(email) {
-        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(email);
     }
     // localstorage helper functions.
     function removeTokenfromLocal() {
